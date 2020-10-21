@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!--
+        Use a content security policy to only allow loading images from https or from our extension directory,
+        and only allow scripts that have a specific nonce.
+        Following comment tag is the placeholder that will be replaced when hosted inside VS Code.
+    -->
+    <!-- CSP -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Semver Calculator</title>
+    <script defer src="viewLogic.js"></script>
+    <link href="view.css" rel="stylesheet" />
+</head>
+
+<body>
+    <h1>Webview sample with Typescript/node view-logic implementation</h1>
+    <p class="hint">The initial value is populated by the extension after Webview initializes using the current VS
+        Code version.<br/>When running outside of VS Code, the viewLogic defaults to <code>9.9.9</code>. Currently running in <span id="uiKind">designer</span>.</p>
+    <p>Press the buttons to increment the version:
+    </p>
+    <p>
+        <snap id="version">0.0.0</snap>
+        <button id="incrementMajor">1+ Major</button>
+        <button id="incrementMinor">1+ Minor</button>
+        <button id="incrementPatch">1+ Patch</button>
+    </p>
+    <p class="hint">The buttons above are powered by the <a href="https://www.npmjs.com/package/@types/semver">semver</a> NPM pacakge in the Node/Typescript view logic implemented in <code>viewLogic.ts</code>.</p>
+</body>
+
+</html>
