@@ -1,0 +1,6 @@
+{
+	"name": "model",
+	"description": "This module exposes the contract for communication with the webview to the viewLogic running inside the Webview",
+	"main": "./index.js",
+	"types": "./index.d.ts"
+}

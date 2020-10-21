@@ -1,4 +1,5 @@
 import { SemVer, ReleaseType } from "semver";
+import { State } from "model";
 
 /** VS Code stub, so we can work with it in a type safe way. */
 interface VsCodeApi {
@@ -38,13 +39,6 @@ function postMessage(message: unknown): void {
         console.log(`Message would be sent to VS Code:`);
         console.dir(message);
     }
-}
-
-
-/** Webview state imposed by VS Code. */
-interface State {
-    version: string;
-    uiKind: string;
 }
 
 const VERSION_HOST = "version";

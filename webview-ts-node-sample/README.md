@@ -12,6 +12,7 @@ This sample demonstrates includes:
 - Using an NPM package in the webview view logic.
 - Simpler authoring of the HTML and CSS styles and quick preview.
 - Faster turn around view logic testing workflow using the [Debugger for Chrome extension](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome)
+- Type-safe data exchange between the extension and the webview view logic (see the `State` class)
 
 ## Demo
 
@@ -44,6 +45,8 @@ It is also possible to launch and debug just the HTML+CSS+JS part of the Webview
 - `npm run watch` in the `webview` directory (also conveniently configured in `tasks.json`)
 - select `F5` to start debugging using the _Preview view.html_
 - set breakpoints either in the Chrome debugger, or into the `viewLogic.js` in VS Code
+
+![Webview debugging](webview_debugging.gif)
 
 ## Developing your own webview from this sample
 
