@@ -36,12 +36,14 @@ export async function getHtml(webview: vscode.Webview, extensionUri: vscode.Uri,
     const nonce = getNonce();
 
     // be sure that the template has a placeholder for Content Security Policy
-    if (!templateHtml.includes("<!-- CSP -->") || templateHtml.includes('http-equiv="Content-Security-Policy"')) {
+    const cspPlaceholderPattern = /<!--\s*CSP\s*-->/i;
+    if (!templateHtml.match(cspPlaceholderPattern) || templateHtml.includes('http-equiv="Content-Security-Policy"')) {
         throw new Error(`Template does not contain CSP placeholder or contains rogue CSP.`);
     }
 
     // insert Content Security Policy
-    let html = templateHtml.replace("<!-- CSP -->", createContentSecurityPolicy(webview, nonce));
+    cspPlaceholderPattern.lastIndex = 0;
+    let html = templateHtml.replace(cspPlaceholderPattern, createContentSecurityPolicy(webview, nonce));
 
     // change resource URLs from relative URLs to vscode-resource URLs
     html = html.replace(/<(script|link) ([^>]*)(src|href)="([^"]+)"/g, (fullMatch: string, tagName: string, passThrough: string, attribName: string, attribValue: string) => {
@@ -49,7 +51,7 @@ export async function getHtml(webview: vscode.Webview, extensionUri: vscode.Uri,
             return fullMatch;
         }
         const resource = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, mediaFolder, attribValue));
-        const nonceAttr = attribName.toLowerCase() === "src" ? `nonce="${nonce}" ` : "";
+        const nonceAttr = tagName.toLowerCase() === "script" && attribName.toLowerCase() === "src" ? `nonce="${nonce}" ` : "";
         return `<${tagName} ${passThrough ?? ""}${nonceAttr} ${attribName}="${resource}"`;
     });
 
