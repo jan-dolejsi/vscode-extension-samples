@@ -3,3 +3,4 @@ node_modules
 .vscode-test/
 *.vsix
 /webview/out/*.js
+/webview/out-test/

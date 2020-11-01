@@ -62,4 +62,106 @@ Furthermore, minification and uglyfication plugins may be added to the `webview/
 and faster Webview start-up times.
 
 Last, but not least, with NPM used to transpile the view logic, you are one step closer to creating unit test coverage
-and including it into your extensions `npm test`.
+and including it into your extension's `npm test`.
+
+## Advanced topics
+
+### Unit-testing the view logic (optional)
+
+The sample also demonstrate, how the view logic may be unit-tested using [mocha](https://www.npmjs.com/package/mocha)
+and [chai](https://www.npmjs.com/package/chai). This is, of course, optional, but saves time during the development cycle.
+These are the elements:
+
+The `webview/package.json` should include following packages in the `devDependencies` section:
+
+```json
+  "devDependencies": {
+    "@types/mocha": "^7.0.2",
+    "mocha": "^7.1.0",
+    "@types/chai": "4.1.3",
+    "chai": "^4.2.0",
+    // ...
+  }
+```
+
+Optionally, the top level `package.json` should include the `nyc` in `devDependencies`, if you want to use the VS Code Mocha sidebar extension to run the tests.
+
+The `webview/tsconfig.json` needs to be modified this way:
+
+```json
+  "compilerOptions": {
+    "outDir": "out-test",
+    "rootDirs": ["src", "test"],
+  }
+```
+
+That ensures the `test` subfolder is also transpiled prior to running tests.\
+The output should be directed to the `out-test` directory, which is created just for the purpose of running tests.
+
+```json
+  "scripts": {
+    "pretest": "tsc && npm run lint",
+    "test-watch": "tsc -w",
+    "test": "mocha -- out-test/test/**/*.js",
+    // ...
+  }
+```
+
+Then a unit test file should be added to the `webview/test/` directory containing at least one test:
+
+```typescript
+import { expect } from 'chai';
+// import a view logic utility (must not depend on the DOM)
+import { utility } from '../src/viewLogicUtility';
+
+describe("view logic...", () => {
+    it('simple assertion should pass', () => {
+        expect(true).to.be.equal(true);
+    });
+});
+```
+
+It may also be useful to run the webview's integration tests in a browser using [babelify](https://medium.com/caffeine-and-testing/testing-es6-modules-with-mocha-using-babel-with-browserify-e6f5514f66d3) or [testling](https://gist.github.com/substack/7480813).
+
+### Sharing common code between extension and webview
+
+One of the usual bugs in extensions with webviews is the misalignment between
+the code in the extension and code in the webview. If state is being exchanged
+between the extension and the webview, the best way to keep both sides
+synchronized is to declare the message schema in one place and share it in both pieces of code.
+
+In this sample, the shared message schema is in the `State` interface placed in the `model` directory in the extension.\
+In order for the webview code to be able to import the `State` interface, it is wrapped into a local NPM package named `model`. Following stars must be aligned:
+
+The `tsconfig.json` on the top level should have `declaration` enabled.\
+This will create the `.d.ts` files that the webview Typescript code will need.
+
+```json
+    "compilerOptions": {
+        "declaration": true,
+        ...
+```
+
+Next, the simple `package.json` file in the `out/model` directory
+provides the minimal description of the package, so it can be referenced
+from the `webview/package.json`:
+
+```json
+  "devDependencies": {
+    "model": "file:../out/model",
+```
+
+There is no need to publish such a package to any NPM registry.
+It is just referenced using the relative path.
+
+Re-run `npm install`.
+
+Now we have everything in place to import the shared contract:
+
+```typescript
+import { State } from "model";
+```
+
+And use it with full power of the syntax checking and intellisense.
+
+![shared contract with intellisense](webview_shared_contract.png)

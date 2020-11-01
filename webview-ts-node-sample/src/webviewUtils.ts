@@ -44,15 +44,19 @@ export async function getHtml(webview: vscode.Webview, extensionUri: vscode.Uri,
     let html = templateHtml.replace("<!-- CSP -->", createContentSecurityPolicy(webview, nonce));
 
     // change resource URLs from relative URLs to vscode-resource URLs
-    html = html.replace(/<(script|link) (defer\s+)?(src|href)="([^"]+)"/g, (fullMatch, tagName, defer, srcOrHref, srcPath) => {
-        const resource = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, mediaFolder, srcPath));
-        return `<${tagName} ${defer ?? ""}nonce="${nonce}" ${srcOrHref}="${resource}"`;
+    html = html.replace(/<(script|link) ([^>]*)(src|href)="([^"]+)"/g, (fullMatch: string, tagName: string, passThrough: string, attribName: string, attribValue: string) => {
+        if (attribValue.startsWith('http')) {
+            return fullMatch;
+        }
+        const resource = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, mediaFolder, attribValue));
+        const nonceAttr = attribName.toLowerCase() === "src" ? `nonce="${nonce}" ` : "";
+        return `<${tagName} ${passThrough ?? ""}${nonceAttr} ${attribName}="${resource}"`;
     });
 
     return html;
 }
 
-export function createContentSecurityPolicy(webview: vscode.Webview, nonce: string) {
+function createContentSecurityPolicy(webview: vscode.Webview, nonce: string) {
     return `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; `
         + `img-src ${webview.cspSource} https:; `
         + `style-src ${webview.cspSource}; `
@@ -60,7 +64,7 @@ export function createContentSecurityPolicy(webview: vscode.Webview, nonce: stri
         + `font-src ${webview.cspSource}; ">`;
 }
 
-export function getNonce() {
+function getNonce(): string {
     let text = '';
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     for (let i = 0; i < 32; i++) {

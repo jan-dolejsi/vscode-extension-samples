@@ -1,5 +1,5 @@
-import { SemVer, ReleaseType } from "semver";
 import { State } from "model";
+import { increment } from "./versionManagement";
 
 /** VS Code stub, so we can work with it in a type safe way. */
 interface VsCodeApi {
@@ -104,20 +104,20 @@ function populateWithTestData(): void {
 function incrementMajor() {
     if (versionHostElement) {
         versionHostElement.innerText =
-            new SemVer(versionHostElement.innerText).inc("major").version;
+            increment(versionHostElement.innerText, "major");
     }
 }
 
 function incrementMinor() {
     if (versionHostElement) {
         versionHostElement.innerText =
-            new SemVer(versionHostElement.innerText).inc("minor").version;
+            increment(versionHostElement.innerText, "minor");
     }
 }
 
 function incrementPatch() {
     if (versionHostElement) {
         versionHostElement.innerText =
-            new SemVer(versionHostElement.innerText).inc("patch").version;
+            increment(versionHostElement.innerText,"patch");
     }
 }

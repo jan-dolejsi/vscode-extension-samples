@@ -6,9 +6,9 @@
 			"es2019",
 			"DOM"
 		],
-		"outDir": "out",
+		"outDir": "out-test",
 		"sourceMap": true,
-		"rootDir": "src",
+		"rootDirs": ["src", "test"],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
 		"strict": true
 	},
 	"exclude": [
