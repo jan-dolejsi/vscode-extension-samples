@@ -142,6 +142,9 @@ This will create the `.d.ts` files that the webview Typescript code will need.
         ...
 ```
 
+> The definition files should be also removed from the vsce package
+> by adding this line to the `.vscodeignore` file: `out/**/*.d.ts`
+
 Next, the simple `package.json` file in the `out/model` directory
 provides the minimal description of the package, so it can be referenced
 from the `webview/package.json`:

@@ -28,6 +28,10 @@
 				"$tsc-watch"
 			],
 			"group": "build",
+			"presentation": {
+				"panel": "dedicated",
+				"reveal": "never"
+			},
 			"isBackground": true,
 			"runOptions": {
 				"runOn": "folderOpen"
