@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { getHtml } from './webviewUtils';
+import { VERSION_CHANGED, VersionChangeNotification } from './model/Notification';
 
 export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
@@ -79,9 +80,11 @@ class SemverCalculatorPanel {
 		this._panel.webview.onDidReceiveMessage(
 			message => {
 				switch (message.command) {
-					case 'alert':
-						vscode.window.showErrorMessage(message.text);
+					case VERSION_CHANGED: {
+						const payload: VersionChangeNotification = message.payload;
+						vscode.window.showInformationMessage(`New ${payload.kind} version: ${payload.newVersion}`);
 						return;
+					}
 					case 'initialized':
 						this.updatePanelState();
 						return;

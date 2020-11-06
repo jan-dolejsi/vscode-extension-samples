@@ -168,3 +168,5 @@ import { State } from "model";
 And use it with full power of the syntax checking and intellisense.
 
 ![shared contract with intellisense](webview_shared_contract.png)
+
+Similarly, the `Notification.ts` shows how to define a message schema for the Webview to pass type-safe messages back to the extension code.

@@ -1,4 +1,4 @@
-import { State } from "model";
+import { State, VersionChangeNotification } from "model";
 import { increment } from "./versionManagement";
 
 /** VS Code stub, so we can work with it in a type safe way. */
@@ -14,7 +14,7 @@ try {
     vscode = acquireVsCodeApi();
 } catch (error) {
     console.warn(error);
-    // swallow, so in the script can be tested in a browser
+    // swallow, so the script can be tested in a browser
 }
 
 window.addEventListener('message', event => {
@@ -78,11 +78,11 @@ export function initialize(): void {
 window.document.body.onload = initialize;
 
 function registerCallback(buttonId: string, buttonCallback: () => void) {
-    const incrementMajorBtn = document.getElementById(buttonId);
-    if (incrementMajorBtn) {
-        incrementMajorBtn.onclick = buttonCallback;
+    const incrementBtn = document.getElementById(buttonId);
+    if (incrementBtn) {
+        incrementBtn.onclick = buttonCallback;
     } else {
-        console.error(`Cannot find any #incrementMajor element in the document.`);
+        console.error(`Cannot find any #${buttonId} element in the document.`);
     }
 }
 
@@ -105,6 +105,11 @@ function incrementMajor() {
     if (versionHostElement) {
         versionHostElement.innerText =
             increment(versionHostElement.innerText, "major");
+        
+        // notify the extension that tha major version changed
+        const payload: VersionChangeNotification = { kind: 'major', newVersion: versionHostElement.innerText };
+        
+        postMessage({ command: 'versionChanged', payload: payload });
     }
 }
 
