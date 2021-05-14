@@ -3,7 +3,6 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import * as path from 'path';
-import * as fs from 'fs';
 import * as cp from 'child_process';
 import * as vscode from 'vscode';
 
@@ -12,6 +11,7 @@ export class RakeTaskProvider implements vscode.TaskProvider {
 	private rakePromise: Thenable<vscode.Task[]> | undefined = undefined;
 
 	constructor(workspaceRoot: string) {
+		// todo: use RelativePattern to convert backslashes to forward slashes to make this work in Windows
 		const pattern = path.join(workspaceRoot, 'Rakefile');
 		const fileWatcher = vscode.workspace.createFileSystemWatcher(pattern);
 		fileWatcher.onDidChange(() => this.rakePromise = undefined);
@@ -33,18 +33,21 @@ export class RakeTaskProvider implements vscode.TaskProvider {
 		if (task) {
 			// resolveTask requires that the same definition object be used.
 			const definition: RakeTaskDefinition = <any>_task.definition;
-			return new vscode.Task(definition, _task.scope ?? vscode.TaskScope.Workspace, definition.task, 'rake', new vscode.ShellExecution(`rake ${definition.task}`));
+			return new vscode.Task(definition, _task.scope ?? vscode.TaskScope.Workspace, definition.task,
+				'rake', // does this need to match the type of the type on the task provider?
+				new vscode.ShellExecution(`rake ${definition.task}`));
 		}
 		return undefined;
 	}
 }
 
-function exists(file: string): Promise<boolean> {
-	return new Promise<boolean>((resolve, _reject) => {
-		fs.exists(file, (value) => {
-			resolve(value);
-		});
-	});
+export async function fileOrFolderExists(fileOrFolderUri: vscode.Uri): Promise<boolean> {
+    try {
+        await vscode.workspace.fs.stat(fileOrFolderUri);
+        return true;
+    } catch (err) {
+        return false;
+    }
 }
 
 function exec(command: string, options: cp.ExecOptions): Promise<{ stdout: string; stderr: string }> {
@@ -109,8 +112,8 @@ async function getRakeTasks(): Promise<vscode.Task[]> {
 		if (!folderString) {
 			continue;
 		}
-		const rakeFile = path.join(folderString, 'Rakefile');
-		if (!await exists(rakeFile)) {
+		const rakeFile = vscode.Uri.joinPath(workspaceFolder.uri, 'Rakefile');
+		if (!await fileOrFolderExists(rakeFile)) {
 			continue;
 		}
 
@@ -132,10 +135,12 @@ async function getRakeTasks(): Promise<vscode.Task[]> {
 					if (matches && matches.length === 2) {
 						const taskName = matches[1].trim();
 						const kind: RakeTaskDefinition = {
-							type: 'rake',
+							type: 'rake', // must match the task provider type!!!
 							task: taskName
 						};
-						const task = new vscode.Task(kind, workspaceFolder, taskName, 'rake', new vscode.ShellExecution(`rake ${taskName}`));
+						const task = new vscode.Task(kind, workspaceFolder, taskName,
+							'rake', // must match the task provider type?
+							new vscode.ShellExecution(`rake ${taskName}`));
 						result.push(task);
 						const lowerCaseLine = line.toLowerCase();
 						if (isBuildTask(lowerCaseLine)) {

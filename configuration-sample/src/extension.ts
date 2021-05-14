@@ -181,7 +181,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// Example: Overriding configuration value for a language
 	context.subscriptions.push(vscode.commands.registerCommand('config.commands.overrideLanguageValue', async () => {
 
-		// 1) Getting the languge id
+		// 1) Getting the language id
 		const languageId = await vscode.window.showInputBox({ placeHolder: 'Enter the language id' });
 
 		// 2) Update

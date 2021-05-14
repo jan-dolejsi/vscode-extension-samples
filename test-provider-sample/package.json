@@ -2,7 +2,7 @@
 	"enableProposedApi": true,
 	"name": "test-provider-sample",
 	"displayName": "test-provider-sample",
-	"description": "Sample showing how to use Proposed API",
+	"description": "Sample Test Provider",
 	"version": "0.0.1",
 	"publisher": "vscode-samples",
 	"repository": "https://github.com/Microsoft/vscode-extension-samples",
